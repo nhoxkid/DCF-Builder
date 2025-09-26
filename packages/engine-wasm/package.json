@@ -1,0 +1,33 @@
+{
+  "name": "@dcf-builder/engine-wasm",
+  "version": "0.1.0",
+  "description": "WebAssembly-backed DCF valuation engine",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "pkg"],
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    },
+    "./pkg/*": "./pkg/*"
+  },
+  "dependencies": {
+    "@dcf-builder/engine-contract": "workspace:^"
+  },
+  "scripts": {
+    "clean": "rimraf dist pkg",
+    "build:wasm": "wasm-pack build ../../crates/dcf --target web --out-dir pkg --out-name dcf",
+    "build": "pnpm run clean && pnpm run build:wasm && tsup src/index.ts --format esm,cjs --dts --sourcemap --external:../pkg/dcf.js",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "pnpm lint -- --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  }
+}

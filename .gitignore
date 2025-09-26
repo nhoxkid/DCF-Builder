@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.pnp.cjs
+.pnp.loader.mjs
+.pnp.data.json
+pnpm-lock.yaml
+*.log
+.DS_Store
+target/
+/pkg/
+wasm-pack.log
+*.wasm
+.vscode/

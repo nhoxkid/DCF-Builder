@@ -1,0 +1,21 @@
+{
+  "name": "@dcf-builder/engine-tests",
+  "version": "0.1.0",
+  "description": "Parity and property tests shared between DCF engines",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "pnpm lint -- --fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dcf-builder/engine-contract": "workspace:^",
+    "@dcf-builder/engine-loader": "workspace:^",
+    "@dcf-builder/engine-ts": "workspace:^",
+    "@dcf-builder/engine-wasm": "workspace:^"
+  }
+}

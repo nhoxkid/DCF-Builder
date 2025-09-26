@@ -1,0 +1,30 @@
+[package]
+name = "dcf"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://example.com/dcf-builder"
+description = "Discounted cash flow core engine exposed to WebAssembly"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+console_error_panic_hook = { version = "0.1", optional = true }
+thiserror = "1"
+
+[dependencies.rust_decimal]
+version = "1"
+features = ["serde", "maths"]
+
+[features]
+default = []
+console_error_panic_hook = ["dep:console_error_panic_hook"]
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+serde_json = "1"

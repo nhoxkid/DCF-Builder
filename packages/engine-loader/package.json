@@ -1,0 +1,32 @@
+{
+  "name": "@dcf-builder/engine-loader",
+  "version": "0.1.0",
+  "description": "Runtime selector between WASM and TypeScript DCF engines",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "dependencies": {
+    "@dcf-builder/engine-contract": "workspace:^",
+    "@dcf-builder/engine-ts": "workspace:^",
+    "@dcf-builder/engine-wasm": "workspace:^"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "pnpm run clean && tsup src/index.ts --format esm,cjs --dts --sourcemap",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "pnpm lint -- --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  }
+}
