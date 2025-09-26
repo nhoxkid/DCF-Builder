@@ -1,1 +1,1 @@
-not done and need a bit of fix and functionality wise, mainly on the rust site
+on progress rust part are broken down 😭, and other functionality is shietttt
