@@ -31,7 +31,7 @@
     "lint": "eslint \"src/**/*.ts\"",
     "format": "pnpm lint -- --fix",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --passWithNoTests"
   },
   "devDependencies": {
     "wasm-pack": "^0.13.0"
