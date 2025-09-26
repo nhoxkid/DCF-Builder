@@ -131,7 +131,7 @@ function App() {
               <Field
                 label="As-of Date"
                 value={formState.asOf}
-                onChange={(value) => setFormState((state) => ({ ...state, asOf: value }))}
+                onChange={(value) => setFormState((state) => ({ ...state, asOf: value as string }))}
                 type="date"
               />
               <Field
@@ -214,13 +214,13 @@ function App() {
           <div className="grid gap-5">
             <MetricCard
               label="Enterprise Value"
-              value={valuation ? formatMillions(valuation.enterpriseValueMillions) : '—'}
+              value={valuation ? formatMillions(valuation.enterpriseValueMillions) : 'ï¿½'}
               accent="blue"
               sublabel="NPV of forecast cashflows"
             />
             <MetricCard
               label="Equity Value"
-              value={valuation ? formatMillions(valuation.equityMillions) : '—'}
+              value={valuation ? formatMillions(valuation.equityMillions) : 'ï¿½'}
               accent="teal"
               sublabel={
                 formState.netDebt
@@ -236,14 +236,14 @@ function App() {
                       maximumFractionDigits: 2,
                       minimumFractionDigits: 2,
                     })
-                  : '—'
+                  : 'ï¿½'
               }
               accent="blue"
               sublabel={`Shares: ${formState.sharesOutstanding.toLocaleString()}M`}
             />
             <MetricCard
               label="Internal Rate of Return"
-              value={irrPercent != null ? formatPercent(irrPercent) : '—'}
+              value={irrPercent != null ? formatPercent(irrPercent) : 'ï¿½'}
               accent="teal"
               sublabel="Computed over cashflow horizon"
             />
@@ -252,11 +252,12 @@ function App() {
       </main>
 
       <footer className="pb-6 text-xs uppercase tracking-[0.3em] text-slate-300/60">
-        Made with Rust ? TypeScript · Designed for precision finance
+        Made with Rust ? TypeScript ï¿½ Designed for precision finance
       </footer>
     </div>
   );
 }
+
 
 interface FieldProps {
   label: string;
@@ -292,3 +293,6 @@ function Field({ label, value, onChange, type = 'number', step = 1, suffix }: Fi
 }
 
 export default App;
+
+
+

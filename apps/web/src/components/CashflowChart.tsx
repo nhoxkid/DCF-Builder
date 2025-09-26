@@ -25,7 +25,10 @@ export const CashflowChart = memo(function CashflowChart({ data }: CashflowChart
             </linearGradient>
           </defs>
           <XAxis dataKey="date" stroke="#94a3b8" tickLine={false} axisLine={false} dy={8} />
-          <YAxis stroke="#64748b" tickLine={false} axisLine={false} width={0} domain={[dataMin => dataMin * 1.1, dataMax => dataMax * 1.1]} />
+          <YAxis stroke="#64748b" tickLine={false} axisLine={false} width={0} domain={[
+            (dataMin: number) => dataMin * 1.1,
+            (dataMax: number) => dataMax * 1.1,
+          ]} />
           <Tooltip
             cursor={{ strokeDasharray: '3 3', stroke: 'rgba(148,163,184,0.4)' }}
             contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)' }}
@@ -37,3 +40,5 @@ export const CashflowChart = memo(function CashflowChart({ data }: CashflowChart
     </div>
   );
 });
+
+

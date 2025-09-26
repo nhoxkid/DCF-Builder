@@ -10,14 +10,14 @@
     "pkg"
   ],
   "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
+      "import": "./dist/index.js",
       "require": "./dist/index.cjs",
-      "default": "./dist/index.mjs"
+      "default": "./dist/index.js"
     },
     "./pkg/*": "./pkg/*"
   },
@@ -26,7 +26,7 @@
   },
   "scripts": {
     "clean": "rimraf dist pkg",
-    "build:wasm": "pnpm --package node@20 exec node ./scripts/run-wasm-pack.mjs build ../../crates/dcf --target web --out-dir ../../packages/engine-wasm/pkg --out-name dcf",
+    "build:wasm": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"node ./scripts/run-wasm-pack.mjs build ../../crates/dcf --target web --out-dir ../../packages/engine-wasm/pkg --out-name dcf\"",
     "build": "pnpm run clean && pnpm run build:wasm && tsup src/index.ts --format esm,cjs --dts --sourcemap --external ../pkg/dcf.js",
     "lint": "eslint \"src/**/*.ts\"",
     "format": "pnpm lint -- --fix",
