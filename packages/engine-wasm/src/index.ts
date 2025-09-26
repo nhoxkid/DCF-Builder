@@ -1,3 +1,4 @@
+/// <reference path="./wasm-types.d.ts" />
 import type {
   DcfInput,
   DcfOutput,

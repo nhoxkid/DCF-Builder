@@ -1,6 +1,7 @@
 use rust_decimal::prelude::{FromPrimitive, ToPrimitive};
 use rust_decimal::{Decimal, RoundingStrategy};
 use serde::{Deserialize, Serialize};
+use serde_wasm_bindgen::{from_value, to_value};
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
 
@@ -41,12 +42,12 @@ impl Money {
             .micro
             .parse::<i128>()
             .map_err(|_| EngineError::InvalidMoney(self.micro.clone()))?;
-        Ok(Decimal::from_i128_with_scale(micro, MICRO_SCALE as i32))
+        Ok(Decimal::from_i128_with_scale(micro, MICRO_SCALE))
     }
 
     fn from_decimal(value: Decimal) -> Result<Self, EngineError> {
         let rounded = value.round_dp_with_strategy(MICRO_SCALE, RoundingStrategy::MidpointAwayFromZero);
-        let multiplier = Decimal::from_i128(MICROS_PER_UNIT).ok_or(EngineError::Overflow)?;
+        let multiplier = Decimal::from_i128_with_scale(MICROS_PER_UNIT, 0);
         let micros = (rounded * multiplier)
             .round()
             .to_i128()
@@ -99,8 +100,7 @@ impl WasmDcfEngine {
     }
 
     pub fn npv(&self, input: JsValue) -> Result<JsValue, JsValue> {
-        let parsed: DcfInput = input
-            .into_serde()
+        let parsed: DcfInput = from_value(input)
             .map_err(|err| EngineError::Serialization(err.to_string()))?;
 
         let rate = parsed.discount_rate_bps as f64 / 10_000.0;
@@ -109,13 +109,12 @@ impl WasmDcfEngine {
         let irr_bps = calculate_irr(&parsed).map_err(JsValue::from)?;
 
         let output = DcfOutput { npv: npv_money, irr_bps };
-        JsValue::from_serde(&output)
+        to_value(&output)
             .map_err(|err| EngineError::Serialization(err.to_string()).into())
     }
 
     pub fn irr(&self, input: JsValue) -> Result<f64, JsValue> {
-        let parsed: DcfInput = input
-            .into_serde()
+        let parsed: DcfInput = from_value(input)
             .map_err(|err| EngineError::Serialization(err.to_string()))?;
 
         match calculate_irr(&parsed).map_err(JsValue::from)? {
@@ -135,7 +134,7 @@ fn calculate_irr(input: &DcfInput) -> Result<Option<i32>, EngineError> {
     let tolerance = Decimal::from_f64(1e-7).ok_or(EngineError::Overflow)?;
 
     let mut npv_low = npv_for_rate(input, low)?;
-    let mut npv_high = npv_for_rate(input, high)?;
+    let npv_high = npv_for_rate(input, high)?;
 
     let same_sign = (npv_low.is_sign_positive() && npv_high.is_sign_positive())
         || (npv_low.is_sign_negative() && npv_high.is_sign_negative());
@@ -160,7 +159,6 @@ fn calculate_irr(input: &DcfInput) -> Result<Option<i32>, EngineError> {
             npv_low = npv_mid;
         } else {
             high = mid;
-            npv_high = npv_mid;
         }
     }
 
@@ -267,3 +265,7 @@ mod tests {
         assert!(irr.is_some());
     }
 }
+
+
+
+

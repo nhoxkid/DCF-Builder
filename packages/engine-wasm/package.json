@@ -5,7 +5,10 @@
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
-  "files": ["dist", "pkg"],
+  "files": [
+    "dist",
+    "pkg"
+  ],
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -23,11 +26,14 @@
   },
   "scripts": {
     "clean": "rimraf dist pkg",
-    "build:wasm": "wasm-pack build ../../crates/dcf --target web --out-dir pkg --out-name dcf",
-    "build": "pnpm run clean && pnpm run build:wasm && tsup src/index.ts --format esm,cjs --dts --sourcemap --external:../pkg/dcf.js",
+    "build:wasm": "node ./scripts/run-wasm-pack.mjs build ../../crates/dcf --target web --out-dir ../../packages/engine-wasm/pkg --out-name dcf",
+    "build": "pnpm run clean && pnpm run build:wasm && tsup src/index.ts --format esm,cjs --dts --sourcemap --external ../pkg/dcf.js",
     "lint": "eslint \"src/**/*.ts\"",
     "format": "pnpm lint -- --fix",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
+  },
+  "devDependencies": {
+    "wasm-pack": "^0.13.0"
   }
 }
