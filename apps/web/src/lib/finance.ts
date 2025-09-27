@@ -1,15 +1,11 @@
-﻿import {
+import {
   moneyFromMicros,
   moneyToMicros,
   type Cashflow as EngineCashflow,
   type DcfInput,
 } from '@dcf-builder/engine-contract';
 
-import {
-  computeValuation,
-  runMonteCarlo,
-  runSensitivity,
-} from './calculators';
+import { computeValuation, runMonteCarlo, runSensitivity } from './calculators';
 import type {
   EquityAdjustment,
   ForecastPeriod,
@@ -25,11 +21,20 @@ import type {
 const MICROS_PER_DOLLAR = 1_000_000n;
 const DOLLARS_PER_MILLION = 1_000_000;
 
+export function randomId(): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).slice(2, 10);
+}
+
 export interface UiCashflow {
   id: string;
   date: string;
   amount: number;
-}export interface BuilderState {
+}
+
+export interface BuilderState {
   forecast: ForecastPeriod[];
   context: ValuationContext;
   activeScenarioId?: string;
@@ -44,17 +49,55 @@ export interface EnginePayload extends ValuationBundle {
   input: DcfInput;
 }
 
+interface ForecastSeed {
+  baseRevenue: number;
+  revenueStep: number;
+  baseMargin: number;
+  marginStep: number;
+}
+
+const FORECAST_SEED: ForecastSeed = {
+  baseRevenue: 500,
+  revenueStep: 60,
+  baseMargin: 18,
+  marginStep: 0.5,
+};
+
 export function createDefaultState(): BuilderState {
   const currentYear = new Date().getUTCFullYear();
-  const forecast: ForecastPeriod[] = Array.from({ length: 6 }).map((_, index) => ({
-    label: `FY${currentYear + index}`,
-    yearOffset: index + 1,
-    revenue: 500 + index * 60,
-    ebitMargin: 18 + index * 0.5,
-  }));
+  const forecast = createDefaultForecast(currentYear);
+  const context = createDefaultContext(forecast, currentYear);
+  return {
+    forecast,
+    context,
+    activeScenarioId: context.scenarios[0]?.id,
+  };
+}
 
-  const context: ValuationContext = {
-    asOf: new Date(Date.UTC(currentYear, 0, 1)).toISOString().slice(0, 10),
+export function createDefaultForecast(
+  startYear = new Date().getUTCFullYear(),
+  horizon = 6,
+  seed: Partial<ForecastSeed> = {},
+): ForecastPeriod[] {
+  const { baseRevenue, revenueStep, baseMargin, marginStep } = { ...FORECAST_SEED, ...seed };
+
+  return Array.from({ length: horizon }, (_, index) => ({
+    label: `FY${startYear + index}`,
+    yearOffset: index + 1,
+    revenue: baseRevenue + index * revenueStep,
+    ebitMargin: baseMargin + index * marginStep,
+  }));
+}
+
+export function createDefaultContext(
+  forecast: ForecastPeriod[],
+  asOfYear = new Date().getUTCFullYear(),
+): ValuationContext {
+  const referenceYear = Math.max(forecast.length - 1, 0);
+  const asOf = new Date(Date.UTC(asOfYear, 0, 1)).toISOString().slice(0, 10);
+
+  return {
+    asOf,
     compounding: 'annual',
     midYearConvention: true,
     discountRate: 9,
@@ -68,7 +111,7 @@ export function createDefaultState(): BuilderState {
         enabled: true,
         metric: 'ebitda',
         multiple: 11,
-        referenceYear: forecast.length - 1,
+        referenceYear,
       },
       applyBoth: true,
     },
@@ -109,90 +152,30 @@ export function createDefaultState(): BuilderState {
       costOfDebtPreTax: 5.2,
       taxRate: 24,
     },
-    sensitivity: {
-      waccValues: [7, 8, 9, 10, 11],
-      terminalGrowthRates: [1.5, 2, 2.5, 3],
-      exitMultiples: [9, 10, 11, 12],
-    },
-    monteCarlo: {
-      iterations: 250,
-      drivers: [
-        { key: 'revenue', distribution: 'normal', mean: 3, stdDev: 2 },
-        { key: 'margin', distribution: 'normal', mean: 0, stdDev: 1 },
-        { key: 'workingCapital', distribution: 'triangular', mean: 0, min: -5, mode: 0, max: 5 },
-      ],
-      seed: 42,
-    },
-    scenarios: [
-      {
-        id: randomId(),
-        label: 'Base',
-        adjustments: {},
-      },
-      {
-        id: randomId(),
-        label: 'Bull',
-        adjustments: {
-          revenueGrowthDeltaPct: 2,
-          marginDeltaPct: 1,
-          exitMultipleDelta: 1,
-          discountRateDeltaPct: -0.5,
-        },
-      },
-      {
-        id: randomId(),
-        label: 'Bear',
-        adjustments: {
-          revenueGrowthDeltaPct: -2,
-          marginDeltaPct: -1.5,
-          exitMultipleDelta: -1,
-          discountRateDeltaPct: 0.75,
-        },
-      },
-    ],
-    segments: [
-      {
-        id: randomId(),
-        label: 'Core SaaS',
-        revenue: 420,
-        ebitdaMargin: 32,
-        investedCapital: 310,
-        exitMultiple: 14,
-      },
-      {
-        id: randomId(),
-        label: 'Payments',
-        revenue: 180,
-        ebitdaMargin: 25,
-        investedCapital: 140,
-        exitMultiple: 11,
-      },
-    ],
+    sensitivity: buildDefaultSensitivityConfig(),
+    monteCarlo: buildDefaultMonteCarloConfig(),
+    scenarios: buildDefaultScenarios(),
+    segments: buildDefaultSegments(),
     peers: [],
     netDebt: 260,
     sharesOutstanding: 145,
-    equityAdjustments: [
-      { label: 'Non-operating Assets', amount: 45 },
-      { label: 'Minority Interest', amount: -25 },
-    ],
+    equityAdjustments: buildDefaultEquityAdjustments(),
     metadata: {
       companyName: 'Example Co.',
       ticker: 'EXCO',
       currency: 'USD',
-      gitCommit: typeof import.meta !== 'undefined' && import.meta.env ? (import.meta.env.VITE_GIT_SHA as string | undefined) : undefined,
+      gitCommit: readGitCommit(),
       configPath: 'configs/base.yaml',
     },
   };
+}
 
-  return {
-    forecast,
-    context,
-    activeScenarioId: context.scenarios[0]?.id,
-  };
+export function resolveActiveScenarioId(state: BuilderState): string | undefined {
+  return state.activeScenarioId ?? state.context.scenarios[0]?.id;
 }
 
 export function resolveScenario(state: BuilderState, scenarioId?: string): ScenarioDefinition | undefined {
-  const targetId = scenarioId ?? state.activeScenarioId;
+  const targetId = scenarioId ?? resolveActiveScenarioId(state);
   if (!targetId) {
     return undefined;
   }
@@ -284,7 +267,11 @@ export function formatMillions(value: number, currency = 'USD'): string {
   }).format(value) + 'M';
 }
 
-export function formatCurrency(value: number, currency = 'USD', options: Intl.NumberFormatOptions = {}): string {
+export function formatCurrency(
+  value: number,
+  currency = 'USD',
+  options: Intl.NumberFormatOptions = {},
+): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
@@ -303,17 +290,94 @@ export function formatPercent(value: number, options: Intl.NumberFormatOptions =
   }).format(value / 100);
 }
 
-export function randomId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID();
-  }
-  return Math.random().toString(36).slice(2, 10);
-}
-
 function shiftEpochDays(asOfEpoch: number, yearOffset: number, midYear: boolean): number {
   const effectiveOffsetYears = Math.max(yearOffset - (midYear ? 0.5 : 0), 0);
   const shiftDays = Math.round(effectiveOffsetYears * 365);
   return asOfEpoch + shiftDays;
 }
 
+function buildDefaultSensitivityConfig(): SensitivityConfig {
+  return {
+    waccValues: [7, 8, 9, 10, 11],
+    terminalGrowthRates: [1.5, 2, 2.5, 3],
+    exitMultiples: [9, 10, 11, 12],
+  };
+}
 
+function buildDefaultMonteCarloConfig(): MonteCarloConfig {
+  return {
+    iterations: 250,
+    drivers: [
+      { key: 'revenue', distribution: 'normal', mean: 3, stdDev: 2 },
+      { key: 'margin', distribution: 'normal', mean: 0, stdDev: 1 },
+      { key: 'workingCapital', distribution: 'triangular', mean: 0, min: -5, mode: 0, max: 5 },
+    ],
+    seed: 42,
+  };
+}
+
+function buildDefaultScenarios(): ScenarioDefinition[] {
+  return [
+    {
+      id: randomId(),
+      label: 'Base',
+      adjustments: {},
+    },
+    {
+      id: randomId(),
+      label: 'Bull',
+      adjustments: {
+        revenueGrowthDeltaPct: 2,
+        marginDeltaPct: 1,
+        exitMultipleDelta: 1,
+        discountRateDeltaPct: -0.5,
+      },
+    },
+    {
+      id: randomId(),
+      label: 'Bear',
+      adjustments: {
+        revenueGrowthDeltaPct: -2,
+        marginDeltaPct: -1.5,
+        exitMultipleDelta: -1,
+        discountRateDeltaPct: 0.75,
+      },
+    },
+  ];
+}
+
+function buildDefaultSegments(): ValuationContext['segments'] {
+  return [
+    {
+      id: randomId(),
+      label: 'Core SaaS',
+      revenue: 420,
+      ebitdaMargin: 32,
+      investedCapital: 310,
+      exitMultiple: 14,
+    },
+    {
+      id: randomId(),
+      label: 'Payments',
+      revenue: 180,
+      ebitdaMargin: 25,
+      investedCapital: 140,
+      exitMultiple: 11,
+    },
+  ];
+}
+
+function buildDefaultEquityAdjustments(): EquityAdjustment[] {
+  return [
+    { label: 'Non-operating Assets', amount: 45 },
+    { label: 'Minority Interest', amount: -25 },
+  ];
+}
+
+function readGitCommit(): string | undefined {
+  if (typeof import.meta !== 'undefined' && typeof import.meta.env === 'object') {
+    const value = (import.meta.env as Record<string, unknown>)?.VITE_GIT_SHA;
+    return typeof value === 'string' ? value : undefined;
+  }
+  return undefined;
+}
