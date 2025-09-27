@@ -1,4 +1,4 @@
-import Decimal from 'decimal.js';
+﻿import Decimal from "decimal.js";
 import {
   BPS_DENOMINATOR,
   DcfInput,
@@ -7,7 +7,7 @@ import {
   ValuationEngine,
   normalizeInput,
   validateInput,
-} from '@dcf-builder/engine-contract';
+} from "@dcf-builder/engine-contract";
 
 Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_EVEN });
 
@@ -19,7 +19,7 @@ const TOLERANCE = new Decimal(1e-7);
 const MAX_ITERATIONS = 128;
 
 export class TsValuationEngine implements ValuationEngine {
-  async npv(input: DcfInput): Promise<DcfOutput> {
+  npv(input: DcfInput): Promise<DcfOutput> {
     validateInput(input);
     const normalized = normalizeInput(input);
     const rate = new Decimal(normalized.discountRateBps).div(BPS_DENOMINATOR);
@@ -28,20 +28,20 @@ export class TsValuationEngine implements ValuationEngine {
 
     const irr = computeIrr(normalized);
 
-    return {
+    return Promise.resolve({
       npv,
       irrBps: irr ?? undefined,
-    };
+    });
   }
 
-  async irr(input: DcfInput): Promise<number> {
+  irr(input: DcfInput): Promise<number> {
     validateInput(input);
     const normalized = normalizeInput(input);
     const irr = computeIrr(normalized);
     if (irr === null) {
-      throw new Error('IRR not found');
+      return Promise.reject(new Error("IRR not found"));
     }
-    return irr;
+    return Promise.resolve(irr);
   }
 }
 
@@ -110,11 +110,11 @@ function decimalToMoney(value: Decimal): Money {
   return { micro: micros.toFixed(0) };
 }
 
-function compoundingFrequency(compounding: DcfInput['compounding']): Decimal {
+function compoundingFrequency(compounding: DcfInput["compounding"]): Decimal {
   switch (compounding) {
-    case 'annual':
+    case "annual":
       return new Decimal(1);
-    case 'monthly':
+    case "monthly":
       return new Decimal(12);
     default:
       return new Decimal(1);

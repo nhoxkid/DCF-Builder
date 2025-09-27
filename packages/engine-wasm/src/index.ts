@@ -1,10 +1,10 @@
-/// <reference path="./wasm-types.d.ts" />
+﻿import "./wasm-types";
 import type {
   DcfInput,
   DcfOutput,
   ValuationEngine,
-} from '@dcf-builder/engine-contract';
-import { normalizeInput, validateInput } from '@dcf-builder/engine-contract';
+} from "@dcf-builder/engine-contract";
+import { normalizeInput, validateInput } from "@dcf-builder/engine-contract";
 
 export type WasmModuleSource = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
@@ -19,16 +19,17 @@ export async function createWasmEngine(options?: WasmEngineOptions): Promise<Val
   const instance = new bindings.WasmDcfEngine();
 
   return {
-    async npv(input: DcfInput): Promise<DcfOutput> {
+    npv(input: DcfInput): Promise<DcfOutput> {
       validateInput(input);
       const normalized = normalizeInput(input);
-      const result = instance.npv(normalized);
-      return result as DcfOutput;
+      const result = instance.npv(normalized) as DcfOutput;
+      return Promise.resolve(result);
     },
-    async irr(input: DcfInput): Promise<number> {
+    irr(input: DcfInput): Promise<number> {
       validateInput(input);
       const normalized = normalizeInput(input);
-      return instance.irr(normalized);
+      const result = instance.irr(normalized);
+      return Promise.resolve(result);
     },
   };
 }
@@ -39,14 +40,14 @@ export async function preloadWasm(module?: WasmModuleSource): Promise<void> {
 
 async function loadBindings(module?: WasmModuleSource): Promise<WasmBindings> {
   if (module) {
-    const wasm = await import('../pkg/dcf.js');
+    const wasm = await import("../pkg/dcf.js");
     await wasm.default(module);
     return wasm;
   }
 
   if (!defaultBindingsPromise) {
     defaultBindingsPromise = (async () => {
-      const wasm = await import('../pkg/dcf.js');
+      const wasm = await import("../pkg/dcf.js");
       await wasm.default();
       return wasm;
     })();
@@ -55,4 +56,4 @@ async function loadBindings(module?: WasmModuleSource): Promise<WasmBindings> {
   return defaultBindingsPromise;
 }
 
-type WasmBindings = typeof import('../pkg/dcf.js');
+type WasmBindings = typeof import("../pkg/dcf.js");
