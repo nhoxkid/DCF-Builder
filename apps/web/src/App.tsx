@@ -177,14 +177,14 @@ function App() {
       setIsRunningMonteCarlo(false);
     }
   };
-  const handleForecastChange = (periods: BuilderState[''forecast'']) => {
+  const handleForecastChange = (periods: BuilderState['forecast']) => {
     setState((prev) => ({
       ...prev,
       forecast: periods,
     }));
   };
 
-  const updateContext = <K extends keyof BuilderState[''context'']>(key: K, value: BuilderState[''context''][K]) => {
+  const updateContext = <K extends keyof BuilderState['context']>(key: K, value: BuilderState['context'][K]) => {
     setState((prev) => ({
       ...prev,
       context: {
@@ -194,81 +194,81 @@ function App() {
     }));
   };
 
-  const updateWorkingCapital = <K extends keyof BuilderState[''context''][''workingCapital'']>(
+  const updateWorkingCapital = <K extends keyof BuilderState['context']['workingCapital']>(
     key: K,
-    value: BuilderState[''context''][''workingCapital''][K],
+    value: BuilderState['context']['workingCapital'][K],
   ) => {
-    updateContext(''workingCapital'', {
+    updateContext('workingCapital', {
       ...state.context.workingCapital,
       [key]: value,
     });
   };
 
-  const updateCapex = <K extends keyof BuilderState[''context''][''capex'']>(
+  const updateCapex = <K extends keyof BuilderState['context']['capex']>(
     key: K,
-    value: BuilderState[''context''][''capex''][K],
+    value: BuilderState['context']['capex'][K],
   ) => {
-    updateContext(''capex'', {
+    updateContext('capex', {
       ...state.context.capex,
       [key]: value,
     });
   };
 
-  const updateLeases = <K extends keyof BuilderState[''context''][''leases'']>(
+  const updateLeases = <K extends keyof BuilderState['context']['leases']>(
     key: K,
-    value: BuilderState[''context''][''leases''][K],
+    value: BuilderState['context']['leases'][K],
   ) => {
-    updateContext(''leases'', {
+    updateContext('leases', {
       ...state.context.leases,
       [key]: value,
     });
   };
 
-  const updateTax = <K extends keyof BuilderState[''context''][''tax'']>(
+  const updateTax = <K extends keyof BuilderState['context']['tax']>(
     key: K,
-    value: BuilderState[''context''][''tax''][K],
+    value: BuilderState['context']['tax'][K],
   ) => {
-    updateContext(''tax'', {
+    updateContext('tax', {
       ...state.context.tax,
       [key]: value,
     });
   };
 
-  const updateWacc = <K extends keyof BuilderState[''context''][''wacc'']>(
+  const updateWacc = <K extends keyof BuilderState['context']['wacc']>(
     key: K,
-    value: BuilderState[''context''][''wacc''][K],
+    value: BuilderState['context']['wacc'][K],
   ) => {
-    updateContext(''wacc'', {
+    updateContext('wacc', {
       ...state.context.wacc,
       [key]: value,
     });
   };
 
-  const updateTerminal = <K extends keyof BuilderState[''context''][''terminalValue'']>(
+  const updateTerminal = <K extends keyof BuilderState['context']['terminalValue']>(
     key: K,
-    value: BuilderState[''context''][''terminalValue''][K],
+    value: BuilderState['context']['terminalValue'][K],
   ) => {
-    updateContext(''terminalValue'', {
+    updateContext('terminalValue', {
       ...state.context.terminalValue,
       [key]: value,
     });
   };
 
-  const updateGordon = <K extends keyof BuilderState[''context''][''terminalValue''][''gordon'']>(
+  const updateGordon = <K extends keyof BuilderState['context']['terminalValue']['gordon']>(
     key: K,
-    value: BuilderState[''context''][''terminalValue''][''gordon''][K],
+    value: BuilderState['context']['terminalValue']['gordon'][K],
   ) => {
-    updateTerminal(''gordon'', {
+    updateTerminal('gordon', {
       ...state.context.terminalValue.gordon,
       [key]: value,
     });
   };
 
-  const updateExit = <K extends keyof BuilderState[''context''][''terminalValue''][''exitMultiple'']>(
+  const updateExit = <K extends keyof BuilderState['context']['terminalValue']['exitMultiple']>(
     key: K,
-    value: BuilderState[''context''][''terminalValue''][''exitMultiple''][K],
+    value: BuilderState['context']['terminalValue']['exitMultiple'][K],
   ) => {
-    updateTerminal(''exitMultiple'', {
+    updateTerminal('exitMultiple', {
       ...state.context.terminalValue.exitMultiple,
       [key]: value,
     });
@@ -280,14 +280,16 @@ function App() {
       return;
     }
     try {
-      const result = await loadBuilderStateFromCsv(file);
-      setState(result.state);
+      const result = await loadBuilderStateFromFile(file);
+      const normalized = normalizeForecast(result.state);
+      setState(normalized);
+      setActiveScenarioId(normalized.activeScenarioId ?? normalized.context.scenarios[0]?.id ?? activeScenarioId);
       setDataWarnings(result.warnings);
-      appendStream(''CSV loaded'', `Rows applied with ${result.warnings.length} warnings`, ''warn'');
+      appendStream('Dataset loaded', `Rows applied with ${result.warnings.length} warnings`, result.warnings.length ? 'warn' : 'success');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to Import Data';
       setCalcError(message);
-      appendStream(''Dataset import failed'', message, ''error'');
+      appendStream('Dataset import failed', message, 'error');
     }
   };
 
@@ -869,6 +871,13 @@ function DescriptionItem({ label, children }: DescriptionItemProps) {
 }
 
 export default App;
+
+
+
+
+
+
+
 
 
 

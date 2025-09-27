@@ -13,8 +13,7 @@ const REQUIRED_COLUMNS = ['label', 'yearoffset', 'revenue', 'ebitmargin'];
 
 export async function loadBuilderStateFromFile(file: File): Promise<DataLoadResult> {
   const extension = file.name.split('.').pop()?.toLowerCase();
-  if (extension === 'parquet') {
-    return loadBuilderStateFromParquet(file);
+  if (extension === 'parquet') {    throw new Error('Parquet ingestion requires the desktop CLI.');
   }
   return loadBuilderStateFromCsv(file);
 }
@@ -35,28 +34,6 @@ export async function loadBuilderStateFromCsv(file: File): Promise<DataLoadResul
   }
 
   return buildStateFromRecords(data, warnings);
-}
-
-export async function loadBuilderStateFromParquet(file: File): Promise<DataLoadResult> {
-  const buffer = new Uint8Array(await file.arrayBuffer());
-  const { ParquetReader } = await import('parquet-wasm');
-  const reader = await ParquetReader.openBuffer(buffer);
-  const rows: Record<string, unknown>[] = [];
-  const rowCount = reader.getRowCount();
-  for (let index = 0; index < rowCount; index += 1) {
-    rows.push(reader.getRow(index));
-  }
-  reader.close();
-
-  const normalized = rows.map((row) => {
-    const record: CsvRow = {};
-    for (const [key, value] of Object.entries(row)) {
-      record[key.toLowerCase()] = value == null ? undefined : String(value);
-    }
-    return record;
-  });
-
-  return buildStateFromRecords(normalized, []);
 }
 
 function buildStateFromRecords(records: CsvRow[], warnings: string[]): DataLoadResult {
@@ -202,5 +179,10 @@ export function normalizeForecast(state: BuilderState): BuilderState {
   }
   return next;
 }
+
+
+
+
+
 
 

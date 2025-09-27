@@ -25,7 +25,11 @@ import type {
 const MICROS_PER_DOLLAR = 1_000_000n;
 const DOLLARS_PER_MILLION = 1_000_000;
 
-export interface BuilderState {
+export interface UiCashflow {
+  id: string;
+  date: string;
+  amount: number;
+}export interface BuilderState {
   forecast: ForecastPeriod[];
   context: ValuationContext;
   activeScenarioId?: string;
@@ -311,4 +315,5 @@ function shiftEpochDays(asOfEpoch: number, yearOffset: number, midYear: boolean)
   const shiftDays = Math.round(effectiveOffsetYears * 365);
   return asOfEpoch + shiftDays;
 }
+
 
