@@ -1,0 +1,8 @@
+﻿site_name: DCF Builder Docs
+nav:
+  - Home: docs/index.md
+  - Getting Started: docs/getting-started.md
+  - Valuation Engine: docs/valuation-engine.md
+  - Governance: docs/governance.md
+theme:
+  name: mkdocs

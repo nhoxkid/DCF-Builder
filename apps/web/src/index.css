@@ -28,3 +28,8 @@ body {
   background: rgba(226, 232, 240, 0.25);
   border-radius: 9999px;
 }
+
+.select-glass option {
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.92);
+}
