@@ -9,7 +9,7 @@
                     "dev":  "vite",
                     "build":  "pnpm run typecheck \u0026\u0026 vite build",
                     "preview":  "vite preview",
-                    "test":  "vitest run --coverage --passWithNoTests --environment node",
+                    "test":  "vitest run --passWithNoTests --environment node",
                     "test:watch":  "vitest",
                     "lint":  "eslint src --ext ts,tsx",
                     "format":  "pnpm lint -- --fix",

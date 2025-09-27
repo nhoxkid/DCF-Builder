@@ -21,6 +21,8 @@ jobs:
 
       - run: pnpm install --no-frozen-lockfile
       - run: pnpm wasm:build
+      - run: pnpm --filter @dcf-builder/engine-ts build
+      - run: pnpm --filter @dcf-builder/engine-loader build
       - run: pnpm test
 
       - uses: actions/setup-python@v5
