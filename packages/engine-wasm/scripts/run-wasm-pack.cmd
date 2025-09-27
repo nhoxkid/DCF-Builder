@@ -33,8 +33,6 @@ if not defined NODE_BIN (
   exit /b 1
 )
 
-echo [run-wasm-pack] Using node executable: "%NODE_BIN%"
-
 for %%I in ("%NODE_BIN%") do set "NODE_DIR=%%~dpI"
 if defined NODE_DIR set "PATH=%NODE_DIR%;%PATH%"
 

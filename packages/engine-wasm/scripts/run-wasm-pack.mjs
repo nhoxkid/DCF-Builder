@@ -40,19 +40,8 @@ if (!cargoBin) {
   process.exit(1);
 }
 
-const wasmPackBinary = path.join(
-  process.cwd(),
-  'node_modules',
-  '.bin',
-  process.platform === 'win32' ? 'wasm-pack.cmd' : 'wasm-pack'
-);
-
-if (!existsSync(wasmPackBinary)) {
-  console.error('Unable to locate `wasm-pack`. Run `pnpm install` to fetch the local binary.');
-  process.exit(1);
-}
-
-const result = spawnSync(wasmPackBinary, args, {
+const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+const result = spawnSync(command, ['exec', 'wasm-pack', ...args], {
   stdio: 'inherit',
   env,
 });
