@@ -27,7 +27,7 @@
     "scripts":  {
                     "clean":  "rimraf dist pkg",
                     "build:wasm":  "node ./scripts/run-wasm-pack.mjs build ../../crates/dcf --target web --out-dir ../../packages/engine-wasm/pkg --out-name dcf",
-                    "build":  "pnpm run clean \u0026\u0026 pnpm run build:wasm \u0026\u0026 tsup src/index.ts --format esm,cjs --dts --sourcemap --external ../pkg/dcf.js",
+                    "build":  "pnpm run clean \u0026\u0026 pnpm run build:wasm \u0026\u0026 tsc --project tsconfig.json --emitDeclarationOnly \u0026\u0026 tsup src/index.ts --format esm,cjs --sourcemap --external ../pkg/dcf.js \u0026\u0026 node ./scripts/finalize-dts.mjs",
                     "lint":  "eslint \"src/**/*.ts\"",
                     "format":  "pnpm lint -- --fix",
                     "typecheck":  "tsc --noEmit",

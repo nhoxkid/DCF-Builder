@@ -5,18 +5,11 @@
     "moduleResolution": "bundler",
     "declaration": true,
     "declarationMap": true,
+    "declarationDir": "dist",
     "sourceMap": true,
     "resolveJsonModule": true,
-    "lib": [
-      "ES2021",
-      "DOM"
-    ]
+    "lib": ["ES2021", "DOM"]
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["dist", "node_modules"]
 }

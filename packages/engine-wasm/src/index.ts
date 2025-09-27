@@ -1,5 +1,4 @@
-﻿import "./wasm-types";
-import type {
+﻿import type {
   DcfInput,
   DcfOutput,
   ValuationEngine,
@@ -7,6 +6,14 @@ import type {
 import { normalizeInput, validateInput } from "@dcf-builder/engine-contract";
 
 export type WasmModuleSource = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
+
+type WasmBindings = {
+  default(module?: WasmModuleSource): Promise<unknown>;
+  WasmDcfEngine: new () => {
+    npv(input: DcfInput): DcfOutput;
+    irr(input: DcfInput): number;
+  };
+};
 
 let defaultBindingsPromise: Promise<WasmBindings> | null = null;
 
@@ -29,6 +36,9 @@ export async function createWasmEngine(options?: WasmEngineOptions): Promise<Val
       validateInput(input);
       const normalized = normalizeInput(input);
       const result = instance.irr(normalized);
+      if (typeof result !== "number" || Number.isNaN(result)) {
+        return Promise.reject(new Error("IRR not found"));
+      }
       return Promise.resolve(result);
     },
   };
@@ -40,14 +50,14 @@ export async function preloadWasm(module?: WasmModuleSource): Promise<void> {
 
 async function loadBindings(module?: WasmModuleSource): Promise<WasmBindings> {
   if (module) {
-    const wasm = await import("../pkg/dcf.js");
+    const wasm = (await import("../pkg/dcf.js")) as WasmBindings;
     await wasm.default(module);
     return wasm;
   }
 
   if (!defaultBindingsPromise) {
     defaultBindingsPromise = (async () => {
-      const wasm = await import("../pkg/dcf.js");
+      const wasm = (await import("../pkg/dcf.js")) as WasmBindings;
       await wasm.default();
       return wasm;
     })();
@@ -56,4 +66,3 @@ async function loadBindings(module?: WasmModuleSource): Promise<WasmBindings> {
   return defaultBindingsPromise;
 }
 
-type WasmBindings = typeof import("../pkg/dcf.js");
