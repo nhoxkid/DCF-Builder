@@ -1,4 +1,4 @@
-{
+﻿{
     "name":  "dcf-builder",
     "private":  true,
     "packageManager":  "pnpm@9.11.0",
@@ -8,7 +8,7 @@
     "scripts":  {
                     "dev":  "pnpm --filter @dcf-builder/web dev",
                     "build":  "pnpm -r --if-present build",
-                    "test":  "pnpm -r --if-present test",
+                    "test":  "node ./scripts/test-watchdog.mjs",
                     "lint":  "pnpm -r --if-present lint",
                     "format":  "pnpm -r --if-present format",
                     "typecheck":  "pnpm -r --if-present typecheck",
