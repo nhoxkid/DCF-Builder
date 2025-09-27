@@ -1,10 +1,14 @@
-import { spawnSync } from 'node:child_process';
+﻿import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
 
 const args = process.argv.slice(2);
 const env = { ...process.env };
+const nodeDir = path.dirname(process.execPath);
+if (nodeDir) {
+  env.PATH = `${nodeDir}${path.delimiter}${env.PATH ?? ''}`;
+}
 
 function resolveCargoBin() {
   if (env.CARGO && existsSync(env.CARGO)) {
