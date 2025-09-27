@@ -2,7 +2,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ForecastTable } from '@/components/ForecastTable';
 import { CashflowChart } from '@/components/CashflowChart';
-import { EngineBadge } from '@/components/EngineBadge';
 import { MetricCard } from '@/components/MetricCard';
 import { StreamConsole, type StreamEntry } from '@/components/StreamConsole';
 import { useValuationEngine } from '@/hooks/useValuationEngine';
@@ -332,11 +331,9 @@ function App() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.35em] text-slate-300/70">DCF Model Builder</p>
-            <h1 className="text-4xl font-semibold text-white">Apple-grade valuation workspace</h1>
+            <h1 className="text-4xl font-semibold text-white">DCF model builder</h1>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            {engineState.status === 'ready' ? <EngineBadge kind={engineState.kind} /> : null}
-            <label className="flex items-center gap-2 text-xs text-slate-200/70">
+          <div className="flex flex-wrap items-center gap-3">            <label className="flex items-center gap-2 text-xs text-slate-200/70">
               <input
                 type="checkbox"
                 checked={streamEnabled}
@@ -871,6 +868,9 @@ function DescriptionItem({ label, children }: DescriptionItemProps) {
 }
 
 export default App;
+
+
+
 
 
 
