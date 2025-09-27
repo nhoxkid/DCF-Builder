@@ -20,6 +20,7 @@ jobs:
           node-version: 20
 
       - run: pnpm install --no-frozen-lockfile
+      - run: pnpm --filter @dcf-builder/engine-contract build
       - run: pnpm wasm:build
       - run: pnpm --filter @dcf-builder/engine-ts build
       - run: pnpm --filter @dcf-builder/engine-loader build
