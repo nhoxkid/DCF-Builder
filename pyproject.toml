@@ -1,4 +1,4 @@
-﻿[tool.poetry]
+[tool.poetry]
 name = "dcf-builder-tooling"
 version = "0.1.0"
 description = "Auxiliary tooling for DCF Builder"
