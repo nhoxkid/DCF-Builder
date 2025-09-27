@@ -1,4 +1,4 @@
-﻿{
+{
     "name":  "@dcf-builder/engine-wasm",
     "version":  "0.1.0",
     "description":  "WebAssembly-backed DCF valuation engine",
@@ -26,7 +26,7 @@
                      },
     "scripts":  {
                     "clean":  "rimraf dist pkg",
-                    "build:wasm":  "scripts\\\\run-wasm-pack.cmd build ../../crates/dcf --target web --out-dir ../../packages/engine-wasm/pkg --out-name dcf",
+                    "build:wasm":  "node ./scripts/run-wasm-pack.mjs build ../../crates/dcf --target web --out-dir ../../packages/engine-wasm/pkg --out-name dcf",
                     "build":  "pnpm run clean \u0026\u0026 pnpm run build:wasm \u0026\u0026 tsup src/index.ts --format esm,cjs --dts --sourcemap --external ../pkg/dcf.js",
                     "lint":  "eslint \"src/**/*.ts\"",
                     "format":  "pnpm lint -- --fix",
