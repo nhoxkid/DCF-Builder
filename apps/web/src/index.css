@@ -29,5 +29,12 @@ body {
   border-radius: 9999px;
 }
 
-.select-glass {\n  color: #e2e8f0;\n  background-color: rgba(255, 255, 255, 0.08);\n}\n\n.select-glass option {\n  color: #f8fafc;\n  background: rgba(15, 23, 42, 0.94);\n}
+.select-glass {
+  color: #f8fafc;
+  background-color: rgba(255, 255, 255, 0.08);
+}
 
+.select-glass option {
+  color: #f8fafc;
+  background-color: rgba(9, 14, 23, 0.94);
+}
