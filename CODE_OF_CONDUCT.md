@@ -17,7 +17,7 @@ Examples of behaviour expected of all community members:
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behaviour may be reported to security@dcf-builder.dev. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behaviour may be reported to ztpc665wtf@privaterelay.appleid.com All complaints will be reviewed and investigated promptly and fairly.
 
 ## Attribution
 
